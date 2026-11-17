@@ -1,0 +1,9 @@
+# Python cache / compiled files
+__pycache__/
+*.pyc
+
+# Virtual environment (each person builds their own with: python -m venv venv)
+venv/
+
+# Local secrets - never upload this
+.env
