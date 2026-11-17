@@ -1,0 +1,61 @@
+{% extends 'dashboard_base.html' %}
+{% block page_title %}Order {{ order.order_number }}{% endblock %}
+{% block content %}
+<a href="{{ url_for('staff.dashboard') }}" class="btn btn-sm btn-light mb-3"><i class="bi bi-chevron-left"></i> Back</a>
+<div class="row g-3">
+  <div class="col-lg-7">
+    <div class="card border-0 shadow-sm mb-3"><div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="fw-bold mb-0">{{ order.order_number }}</h5>
+        <span class="badge bg-{{ status_badge(order.status_name) }}">{{ order.status_name }}</span>
+      </div>
+      <div class="small text-muted"><i class="bi bi-person"></i> {{ order.customer_name }} · {{ order.customer_phone }}</div>
+      <div class="small text-muted mb-3"><i class="bi bi-geo-alt"></i> {{ order.location_name }}</div>
+      <h6 class="fw-bold">Items</h6>
+      {% for it in items %}<div class="d-flex justify-content-between mb-1"><span>{{ it.quantity }}× {{ it.item_name }}</span><span>{{ money(it.line_total) }}</span></div>{% endfor %}
+      <hr>
+      <div class="d-flex justify-content-between fw-bold"><span>Total</span><span>{{ money(order.total) }}</span></div>
+      <div class="d-flex justify-content-between small text-muted"><span>Payment</span><span>{{ order.payment_method }}</span></div>
+    </div></div>
+
+    {% if order.status_name in ['Preparing','Ready for Pickup','Rider Assigned'] %}
+    <div class="card border-0 shadow-sm"><div class="card-body">
+      <h6 class="fw-bold mb-2"><i class="bi bi-clipboard-check"></i> Packaging Checklist</h6>
+      {% for c in ['Correct food items','Correct quantities','Drinks included','Package sealed','Order label attached'] %}
+        <div class="form-check"><input class="form-check-input" type="checkbox" id="pk{{ loop.index }}" {{ 'checked' if order.status_name!='Preparing' else '' }}>
+          <label class="form-check-label" for="pk{{ loop.index }}">{{ c }}</label></div>
+      {% endfor %}
+    </div></div>
+    {% endif %}
+  </div>
+
+  <div class="col-lg-5">
+    <div class="card border-0 shadow-sm mb-3"><div class="card-body">
+      <h6 class="fw-bold mb-3">Process</h6>
+      {% if order.status_name == 'Pending' %}
+        <form method="post" action="{{ url_for('staff.order_action', oid=order.id) }}" class="d-grid mb-2"><input type="hidden" name="action" value="accept"><button class="btn btn-brand">Accept Order</button></form>
+        <form method="post" action="{{ url_for('staff.order_action', oid=order.id) }}" class="d-grid"><input type="hidden" name="action" value="reject"><button class="btn btn-outline-danger">Reject</button></form>
+      {% elif order.status_name == 'Accepted' %}
+        <form method="post" action="{{ url_for('staff.order_action', oid=order.id) }}" class="d-grid"><input type="hidden" name="action" value="prepare"><button class="btn btn-warning"><i class="bi bi-fire"></i> Send to Kitchen / Start Preparing</button></form>
+      {% elif order.status_name == 'Preparing' %}
+        <form method="post" action="{{ url_for('staff.order_action', oid=order.id) }}" class="d-grid"><input type="hidden" name="action" value="ready"><button class="btn btn-primary"><i class="bi bi-box-seam"></i> Preparation Complete → Mark Ready</button></form>
+      {% elif order.status_name == 'Rider Assigned' %}
+        <div class="alert alert-info small">Rider <b>{{ order.rider_name }}</b> is assigned.</div>
+        <form method="post" action="{{ url_for('staff.order_action', oid=order.id) }}" class="d-grid"><input type="hidden" name="action" value="handover"><button class="btn btn-success"><i class="bi bi-check2"></i> Confirm Handover</button></form>
+      {% elif order.status_name == 'Ready for Pickup' %}
+        <div class="alert alert-warning small mb-0"><i class="bi bi-hourglass-split"></i> Waiting for a rider to accept this delivery.</div>
+      {% else %}
+        <div class="alert alert-secondary small mb-0">Status: {{ order.status_name }}</div>
+      {% endif %}
+    </div></div>
+
+    <div class="card border-0 shadow-sm"><div class="card-body">
+      <h6 class="fw-bold mb-2">History</h6>
+      <ul class="timeline">
+        {% for h in history %}<li><span class="badge bg-{{ status_badge(h.status_name) }}">{{ h.status_name }}</span>
+          <span class="text-muted small ms-2">{{ h.created_at }}</span></li>{% endfor %}
+      </ul>
+    </div></div>
+  </div>
+</div>
+{% endblock %}

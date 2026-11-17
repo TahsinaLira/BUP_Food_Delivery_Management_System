@@ -1,0 +1,26 @@
+{% extends 'dashboard_base.html' %}
+{% block page_title %}Complaint Management{% endblock %}
+{% block content %}
+<ul class="nav nav-pills mb-3">
+  {% for t in ['all','Open','Under Review','Resolved'] %}
+  <li class="nav-item"><a class="nav-link {{ 'active' if tab==t else '' }}" href="{{ url_for('admin.complaints', tab=t) }}">{{ t|capitalize }}</a></li>
+  {% endfor %}
+</ul>
+<div class="card border-0 shadow-sm"><div class="table-responsive">
+  <table class="table table-hover align-middle mb-0">
+    <thead class="table-light"><tr><th>Ticket</th><th>Customer</th><th>Order</th><th>Category</th><th>Description</th><th>Status</th><th class="text-end">Set</th></tr></thead>
+    <tbody>
+    {% for c in complaints %}
+    <tr><td class="fw-semibold">{{ c.ticket_no }}</td><td>{{ c.customer_name }}</td><td>{{ c.order_number or '—' }}</td>
+      <td><span class="badge bg-light text-dark">{{ c.category }}</span></td>
+      <td class="text-muted small" style="max-width:220px">{{ c.description }}</td>
+      <td><span class="badge bg-{{ status_badge(c.status) }}">{{ c.status }}</span></td>
+      <td class="text-end"><form method="post" action="{{ url_for('admin.complaint_status', cid=c.id) }}" class="d-flex gap-1">
+        <select name="status" class="form-select form-select-sm" style="width:auto">
+          {% for s in ['Open','Under Review','Resolved'] %}<option {{ 'selected' if c.status==s else '' }}>{{ s }}</option>{% endfor %}</select>
+        <button class="btn btn-sm btn-outline-secondary">Save</button></form></td></tr>
+    {% else %}<tr><td colspan="7" class="text-center text-muted py-4">No complaints.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div></div>
+{% endblock %}

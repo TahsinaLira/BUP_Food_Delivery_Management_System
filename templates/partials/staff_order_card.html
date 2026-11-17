@@ -1,0 +1,36 @@
+{# Renders one order card for staff. Expects variable `o`. #}
+<div class="col-md-6 col-xl-4">
+  <div class="card border-0 shadow-sm h-100 {{ 'border-start border-4 border-warning' if o.status_name=='Pending' else '' }}">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center">
+        <span class="fw-bold">{{ o.order_number }}</span>
+        <span class="badge bg-{{ status_badge(o.status_name) }}">{{ o.status_name }}</span>
+      </div>
+      <div class="small text-muted mt-1"><i class="bi bi-person"></i> {{ o.customer_name }}</div>
+      <div class="small text-muted"><i class="bi bi-geo-alt"></i> {{ o.location_name }}</div>
+      <div class="bg-body-tertiary rounded p-2 my-2 small">
+        <div class="d-flex justify-content-between"><span>Total</span><span class="fw-bold">{{ money(o.total) }}</span></div>
+        <div class="d-flex justify-content-between"><span>Payment</span><span>{{ o.payment_method }}</span></div>
+        {% if o.rider_name %}<div class="d-flex justify-content-between"><span>Rider</span><span>{{ o.rider_name }}</span></div>{% endif %}
+      </div>
+      <div class="d-flex gap-2">
+        {% if o.status_name == 'Pending' %}
+          <form method="post" action="{{ url_for('staff.order_action', oid=o.id) }}" class="flex-fill d-grid">
+            <input type="hidden" name="action" value="reject"><button class="btn btn-sm btn-outline-danger">Reject</button></form>
+          <form method="post" action="{{ url_for('staff.order_action', oid=o.id) }}" class="flex-fill d-grid">
+            <input type="hidden" name="action" value="accept"><button class="btn btn-sm btn-brand">Accept</button></form>
+        {% elif o.status_name == 'Accepted' %}
+          <form method="post" action="{{ url_for('staff.order_action', oid=o.id) }}" class="flex-fill d-grid">
+            <input type="hidden" name="action" value="prepare"><button class="btn btn-sm btn-warning">Start Preparing</button></form>
+        {% elif o.status_name == 'Preparing' %}
+          <form method="post" action="{{ url_for('staff.order_action', oid=o.id) }}" class="flex-fill d-grid">
+            <input type="hidden" name="action" value="ready"><button class="btn btn-sm btn-primary">Mark Ready</button></form>
+        {% elif o.status_name == 'Rider Assigned' %}
+          <form method="post" action="{{ url_for('staff.order_action', oid=o.id) }}" class="flex-fill d-grid">
+            <input type="hidden" name="action" value="handover"><button class="btn btn-sm btn-success">Confirm Handover</button></form>
+        {% endif %}
+        <a href="{{ url_for('staff.order_details', oid=o.id) }}" class="btn btn-sm btn-outline-secondary">View</a>
+      </div>
+    </div>
+  </div>
+</div>

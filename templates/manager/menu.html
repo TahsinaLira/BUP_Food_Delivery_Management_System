@@ -1,0 +1,38 @@
+{% extends 'dashboard_base.html' %}
+{% block page_title %}Menu Management{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between mb-3">
+  <span class="badge bg-light text-dark align-self-center">{{ foods|length }} items</span>
+  <a href="{{ url_for('manager.add_food') }}" class="btn btn-brand"><i class="bi bi-plus-lg"></i> Add New Food</a>
+</div>
+<div class="card border-0 shadow-sm"><div class="table-responsive">
+  <table class="table table-hover align-middle mb-0">
+    <thead class="table-light"><tr><th>Item</th><th>Category</th><th>Price</th><th>Rating</th><th>Available</th><th class="text-end">Actions</th></tr></thead>
+    <tbody>
+    {% for f in foods %}
+    <tr>
+      <td><div class="d-flex align-items-center gap-2">
+  <span class="food-thumb sm">
+    {% if f.image %}<img src="{{ f.image if '://' in f.image else url_for('static', filename='images/' + f.image) }}" alt="{{ f.name }}">
+    {% else %}<i class="bi bi-egg-fried"></i>{% endif %}
+  </span>
+  <span class="fw-semibold">{{ f.name }}</span></div></td>
+      <td><span class="badge bg-light text-dark">{{ f.category_name }}</span></td>
+      <td>{{ money(f.price) }}</td>
+      <td><i class="bi bi-star-fill text-warning"></i> {{ f.rating }}</td>
+      <td>
+        <form method="post" action="{{ url_for('manager.toggle_food', fid=f.id) }}">
+          <button class="btn btn-sm {{ 'btn-success' if f.is_available else 'btn-outline-secondary' }}">
+            {{ 'Available' if f.is_available else 'Unavailable' }}</button></form>
+      </td>
+      <td class="text-end">
+        <a href="{{ url_for('manager.edit_food', fid=f.id) }}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a>
+        <form method="post" action="{{ url_for('manager.delete_food', fid=f.id) }}" class="d-inline" onsubmit="return confirm('Delete this item?')">
+          <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button></form>
+      </td>
+    </tr>
+    {% else %}<tr><td colspan="6" class="text-center text-muted py-4">No food items yet.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div></div>
+{% endblock %}

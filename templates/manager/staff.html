@@ -1,0 +1,17 @@
+{% extends 'dashboard_base.html' %}
+{% block page_title %}Staff Management{% endblock %}
+{% block content %}
+<div class="card border-0 shadow-sm"><div class="table-responsive">
+  <table class="table table-hover align-middle mb-0">
+    <thead class="table-light"><tr><th>Name</th><th>Email</th><th>Position</th><th>Status</th><th class="text-end">Action</th></tr></thead>
+    <tbody>
+    {% for s in staff %}
+    <tr><td class="fw-semibold">{{ s.full_name }}</td><td class="text-muted">{{ s.email }}</td><td>{{ s.position }}</td>
+      <td><span class="badge bg-{{ status_badge(s.status) }}">{{ s.status }}</span></td>
+      <td class="text-end"><form method="post" action="{{ url_for('manager.toggle_staff', sid=s.id) }}">
+        <button class="btn btn-sm btn-outline-secondary">{{ 'Deactivate' if s.status=='Active' else 'Activate' }}</button></form></td></tr>
+    {% else %}<tr><td colspan="5" class="text-center text-muted py-4">No staff assigned.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div></div>
+{% endblock %}

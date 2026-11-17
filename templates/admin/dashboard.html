@@ -1,0 +1,47 @@
+{% extends 'dashboard_base.html' %}
+{% block page_title %}Admin Dashboard{% endblock %}
+{% block page_sub %}BUP Food Delivery Platform{% endblock %}
+{% block content %}
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-label">Total users</div><div class="stat-val">{{ kpis.users }}</div></div></div>
+  <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-label">Active canteens</div><div class="stat-val text-success">{{ kpis.canteens }}</div></div></div>
+  <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-label">Active riders</div><div class="stat-val text-primary">{{ kpis.riders }}</div></div></div>
+  <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-label">Today's orders</div><div class="stat-val">{{ kpis.today_orders }}</div></div></div>
+  <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-label">Completed</div><div class="stat-val text-success">{{ kpis.completed }}</div></div></div>
+  <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-label">Cancelled</div><div class="stat-val text-danger">{{ kpis.cancelled }}</div></div></div>
+  <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-label">Order value</div><div class="stat-val" style="font-size:1.1rem">{{ money(kpis.order_value) }}</div></div></div>
+  <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-label">Open complaints</div><div class="stat-val text-warning">{{ kpis.open_complaints }}</div></div></div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-7"><div class="card border-0 shadow-sm h-100"><div class="card-body">
+    <h6 class="fw-bold mb-3">Orders over time (7 days)</h6><canvas id="otChart" height="120"></canvas>
+  </div></div></div>
+  <div class="col-lg-5"><div class="card border-0 shadow-sm h-100"><div class="card-body">
+    <h6 class="fw-bold mb-3">Orders by canteen</h6><canvas id="canteenChart" height="120"></canvas>
+  </div></div></div>
+</div>
+
+<div class="card border-0 shadow-sm mt-3"><div class="card-body">
+  <h6 class="fw-bold mb-2">Recent activity</h6>
+  <table class="table table-sm align-middle mb-0">
+    <thead class="table-light"><tr><th>Order</th><th>Customer</th><th>Canteen</th><th>Status</th><th>Time</th></tr></thead>
+    <tbody>{% for o in recent %}<tr><td class="fw-semibold">{{ o.order_number }}</td><td>{{ o.customer_name }}</td><td>{{ o.canteen_name }}</td>
+      <td><span class="badge bg-{{ status_badge(o.status_name) }}">{{ o.status_name }}</span></td><td class="text-muted small">{{ o.placed_at }}</td></tr>{% endfor %}</tbody>
+  </table>
+</div></div>
+{% endblock %}
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+new Chart(document.getElementById('otChart'), {
+  type:'line', data:{ labels: {{ ot_labels|tojson }},
+    datasets:[{ label:'Orders', data: {{ ot_values|tojson }}, borderColor:'#2a78d6',
+      backgroundColor:'rgba(42,120,214,.12)', fill:true, tension:.35, pointRadius:4 }]},
+  options:{ plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}} }});
+new Chart(document.getElementById('canteenChart'), {
+  type:'doughnut', data:{ labels: {{ canteen_labels|tojson }},
+    datasets:[{ data: {{ canteen_values|tojson }}, backgroundColor:['#2a78d6','#eb6834','#1baf7a','#eda100'] }]},
+  options:{ plugins:{legend:{position:'right'}} }});
+</script>
+{% endblock %}

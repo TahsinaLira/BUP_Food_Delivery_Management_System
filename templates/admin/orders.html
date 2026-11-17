@@ -1,0 +1,26 @@
+{% extends 'dashboard_base.html' %}
+{% block page_title %}Order Monitoring{% endblock %}
+{% block content %}
+<form class="row g-2 mb-3" method="get">
+  <div class="col-auto"><select name="canteen" class="form-select" onchange="this.form.submit()">
+    <option value="">All canteens</option>
+    {% for c in canteens %}<option value="{{ c.id }}" {{ 'selected' if sel_canteen==c.id else '' }}>{{ c.name }}</option>{% endfor %}</select></div>
+  <div class="col-auto"><select name="status" class="form-select" onchange="this.form.submit()">
+    <option value="">All statuses</option>
+    {% for s in statuses %}<option {{ 'selected' if sel_status==s.name else '' }}>{{ s.name }}</option>{% endfor %}</select></div>
+  <div class="col-auto"><a href="{{ url_for('admin.orders') }}" class="btn btn-outline-secondary">Clear</a></div>
+</form>
+<div class="card border-0 shadow-sm"><div class="table-responsive">
+  <table class="table table-hover align-middle mb-0">
+    <thead class="table-light"><tr><th>Order</th><th>Customer</th><th>Canteen</th><th>Rider</th><th>Destination</th><th>Amount</th><th>Payment</th><th>Status</th></tr></thead>
+    <tbody>
+    {% for o in orders %}
+    <tr><td class="fw-semibold">{{ o.order_number }}</td><td>{{ o.customer_name }}</td><td>{{ o.canteen_name }}</td>
+      <td>{{ o.rider_name or '—' }}</td><td>{{ o.location_name }}</td><td>{{ money(o.total) }}</td>
+      <td><span class="badge bg-{{ status_badge(o.pay_status or 'Pending') }}">{{ o.pay_status or 'Pending' }}</span></td>
+      <td><span class="badge bg-{{ status_badge(o.status_name) }}">{{ o.status_name }}</span></td></tr>
+    {% else %}<tr><td colspan="8" class="text-center text-muted py-4">No orders match these filters.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div></div>
+{% endblock %}

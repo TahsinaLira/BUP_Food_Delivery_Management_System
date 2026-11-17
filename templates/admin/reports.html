@@ -1,0 +1,34 @@
+{% extends 'dashboard_base.html' %}
+{% block page_title %}Reports{% endblock %}
+{% block content %}
+<div class="row g-3 mb-3">
+  <div class="col-md-6"><div class="stat-card"><div class="stat-label">Platform revenue</div><div class="stat-val text-success">{{ money(totals.revenue) }}</div></div></div>
+  <div class="col-md-6"><div class="stat-card"><div class="stat-label">Total orders</div><div class="stat-val">{{ totals.orders }}</div></div></div>
+</div>
+<div class="row g-3">
+  <div class="col-lg-6"><div class="card border-0 shadow-sm h-100"><div class="card-body">
+    <h6 class="fw-bold mb-3">Revenue by canteen</h6>
+    <table class="table table-sm mb-0"><thead class="table-light"><tr><th>Canteen</th><th>Orders</th><th>Revenue</th></tr></thead>
+      <tbody>{% for r in by_canteen %}<tr><td>{{ r.name }}</td><td>{{ r.c }}</td><td>{{ money(r.revenue) }}</td></tr>{% endfor %}</tbody></table>
+  </div></div></div>
+  <div class="col-lg-6"><div class="card border-0 shadow-sm h-100"><div class="card-body">
+    <h6 class="fw-bold mb-3">Orders by campus</h6><canvas id="campusChart" height="150"></canvas>
+  </div></div></div>
+</div>
+<div class="card border-0 shadow-sm mt-3"><div class="card-body">
+  <h6 class="fw-bold mb-2">Popular delivery locations</h6>
+  {% for l in by_location %}
+  <div class="mb-2"><div class="d-flex justify-content-between small"><span>{{ l.name }}</span><span class="text-muted">{{ l.c }}</span></div>
+    <div class="progress" style="height:6px"><div class="progress-bar bg-brand" style="width:{{ (l.c / (by_location[0].c or 1) * 100)|round }}%"></div></div></div>
+  {% endfor %}
+</div></div>
+{% endblock %}
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+new Chart(document.getElementById('campusChart'), {
+  type:'doughnut', data:{ labels: {{ by_campus|map(attribute='campus')|list|tojson }},
+    datasets:[{ data: {{ by_campus|map(attribute='c')|list|tojson }}, backgroundColor:['#2a78d6','#eb6834','#1baf7a','#eda100'] }]},
+  options:{ plugins:{legend:{position:'right'}} }});
+</script>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}Profile · BUP Food{% endblock %}
+{% block content %}
+<div class="row justify-content-center"><div class="col-lg-6">
+  <div class="card border-0 shadow-sm text-center mb-3"><div class="card-body">
+    <span class="avatar-lg mx-auto">{{ user.full_name[:1] }}</span>
+    <h4 class="fw-bold mt-2 mb-0">{{ user.full_name }}</h4>
+    <div class="text-muted">{{ profile.user_type }} · {{ profile.bup_id }}</div>
+  </div></div>
+  <div class="card border-0 shadow-sm"><div class="list-group list-group-flush">
+    <div class="list-group-item d-flex justify-content-between"><span class="text-muted">Email</span><span>{{ user.email }}</span></div>
+    <div class="list-group-item d-flex justify-content-between"><span class="text-muted">Phone</span><span>{{ user.phone or '—' }}</span></div>
+    <div class="list-group-item d-flex justify-content-between"><span class="text-muted">User type</span><span>{{ profile.user_type }}</span></div>
+    <div class="list-group-item d-flex justify-content-between"><span class="text-muted">Campus</span><span>{{ profile.campus }}</span></div>
+    <div class="list-group-item d-flex justify-content-between"><span class="text-muted">Default location</span><span>{{ profile.location_name or '—' }}</span></div>
+    <div class="list-group-item d-flex justify-content-between"><span class="text-muted">Hostel resident</span><span>{{ 'Yes' if profile.hostel_resident else 'No' }}</span></div>
+  </div></div>
+  <div class="d-grid gap-2 mt-3">
+    <a href="{{ url_for('customer.edit_profile') }}" class="btn btn-brand"><i class="bi bi-pencil"></i> Edit Profile</a>
+    <a href="{{ url_for('customer.my_orders') }}" class="btn btn-outline-secondary">Order history</a>
+    <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-danger">Log out</a>
+  </div>
+</div></div>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends 'dashboard_base.html' %}
+{% block page_title %}Canteen Settings{% endblock %}
+{% block content %}
+<div class="card border-0 shadow-sm" style="max-width:640px"><div class="card-body">
+  <form method="post">
+    <div class="mb-3"><label class="form-label">Canteen name</label><input name="name" class="form-control" value="{{ canteen.name }}" required></div>
+    <div class="mb-3"><label class="form-label">Description</label><textarea name="description" class="form-control" rows="2">{{ canteen.description }}</textarea></div>
+    <div class="row g-3">
+      <div class="col-md-6"><label class="form-label">Opening time</label><input type="time" name="opening_time" class="form-control" value="{{ canteen.opening_time }}"></div>
+      <div class="col-md-6"><label class="form-label">Closing time</label><input type="time" name="closing_time" class="form-control" value="{{ canteen.closing_time }}"></div>
+    </div>
+    <div class="mb-3 mt-3"><label class="form-label">Contact number</label><input name="contact" class="form-control" value="{{ canteen.contact }}"></div>
+    <div class="form-check form-switch mb-3"><input class="form-check-input" type="checkbox" name="is_open" id="op" {{ 'checked' if canteen.is_open else '' }}>
+      <label class="form-check-label" for="op">Canteen is open (accepting orders)</label></div>
+    <button class="btn btn-brand">Save Changes</button>
+  </form>
+</div></div>
+{% endblock %}

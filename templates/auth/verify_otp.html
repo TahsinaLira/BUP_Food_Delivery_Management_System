@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Verify Code · BUP Food Delivery{% endblock %}
+{% block main_class %}container-fluid p-0{% endblock %}
+{% block content %}
+<div class="row g-0 min-vh-100">
+  <div class="col-lg-6 d-none d-lg-flex flex-column justify-content-between text-white login-hero p-5">
+    <div class="d-flex align-items-center gap-2">
+      <span class="brand-badge"><i class="bi bi-scooter"></i></span>
+      <div><div class="fw-bold fs-5">BUP Food Delivery</div><small>Bangladesh University of Professionals</small></div>
+    </div>
+    <div>
+      <h1 class="fw-bold">Enter your<br>verification code.</h1>
+      <p class="opacity-75 mt-3" style="max-width:420px">Check your email for the 6-digit code, then choose a new password.</p>
+    </div>
+    <div></div>
+  </div>
+  <div class="col-lg-6 d-flex align-items-center justify-content-center p-4">
+    <div class="card shadow-sm border-0 w-100" style="max-width:400px">
+      <div class="card-body p-4">
+        <h4 class="fw-bold mb-1">Verify &amp; reset</h4>
+        <p class="text-muted small mb-4">Step 2 of 2 — we sent a code to <strong>{{ email }}</strong>.</p>
+        <form method="post" action="{{ url_for('auth.verify_otp') }}">
+          <div class="mb-3">
+            <label class="form-label">6-digit code</label>
+            <div class="input-group"><span class="input-group-text"><i class="bi bi-shield-lock"></i></span>
+              <input type="text" name="otp" class="form-control" placeholder="123456"
+                     inputmode="numeric" maxlength="6" required autofocus></div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">New password</label>
+            <div class="input-group"><span class="input-group-text"><i class="bi bi-lock"></i></span>
+              <input type="password" name="new_password" class="form-control" placeholder="At least 6 characters" required></div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Confirm new password</label>
+            <div class="input-group"><span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+              <input type="password" name="confirm" class="form-control" placeholder="Re-type new password" required></div>
+          </div>
+          <button class="btn btn-brand w-100"><i class="bi bi-check2-circle"></i> Reset password</button>
+        </form>
+        <p class="text-center small mt-3 mb-0">
+          Didn't get a code? <a href="{{ url_for('auth.forgot_password') }}">Request again</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

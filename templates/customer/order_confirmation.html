@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Order Placed · BUP Food{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6 text-center">
+    <div class="success-circle mx-auto"><i class="bi bi-check-lg"></i></div>
+    <h3 class="fw-bold mt-3">Order Placed Successfully</h3>
+    <p class="text-muted">Your order <b>{{ order.order_number }}</b> has been sent to {{ order.canteen_name }}.</p>
+    <div class="card border-0 shadow-sm text-start mt-3">
+      <div class="card-body">
+        <div class="d-flex justify-content-between mb-2"><span class="text-muted">Canteen</span><span class="fw-semibold">{{ order.canteen_name }}</span></div>
+        <div class="d-flex justify-content-between mb-2"><span class="text-muted">Delivery point</span><span class="fw-semibold">{{ order.location_name }}</span></div>
+        <div class="d-flex justify-content-between mb-2"><span class="text-muted">Payment</span><span class="badge bg-brand-subtle text-brand">{{ order.payment_method }}</span></div>
+        {% for it in items %}<div class="d-flex justify-content-between small mb-1"><span>{{ it.quantity }}× {{ it.item_name }}</span><span>{{ money(it.line_total) }}</span></div>{% endfor %}
+        <hr>
+        <div class="d-flex justify-content-between fw-bold fs-5"><span>Total</span><span>{{ money(order.total) }}</span></div>
+      </div>
+    </div>
+    <a href="{{ url_for('customer.order_tracking', oid=order.id) }}" class="btn btn-brand w-100 mt-3"><i class="bi bi-geo-alt"></i> Track Order</a>
+    <a href="{{ url_for('customer.home') }}" class="btn btn-outline-secondary w-100 mt-2">Back to Home</a>
+  </div>
+</div>
+{% endblock %}

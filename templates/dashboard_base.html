@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}BUP Food · Dashboard{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+<div class="dash-wrap">
+  <!-- Sidebar -->
+  <aside class="dash-sidebar" id="sidebar">
+    <div class="dash-brand">
+      <span class="brand-badge"><i class="bi bi-scooter"></i></span>
+      <div><div class="fw-bold">BUP Food</div><small class="text-white-50">{{ role_title }}</small></div>
+    </div>
+    <nav class="dash-nav">
+      {% set ep = request.endpoint %}
+      {% macro link(endpoint, icon, label) -%}
+        <a href="{{ url_for(endpoint) }}" class="dash-link {{ 'active' if ep == endpoint else '' }}">
+          <i class="bi bi-{{ icon }}"></i><span>{{ label }}</span></a>
+      {%- endmacro %}
+
+      {% if session.get('role') == 'canteen_staff' %}
+        {{ link('staff.dashboard','speedometer2','Dashboard') }}
+        {{ link('staff.live_orders','inbox','Live Orders') }}
+        {{ link('staff.preparing','fire','Preparing') }}
+        {{ link('staff.ready','box-seam','Ready for Pickup') }}
+        {{ link('staff.completed','check2-circle','Completed') }}
+        {{ link('staff.profile','person','Profile') }}
+      {% elif session.get('role') == 'canteen_manager' %}
+        {{ link('manager.dashboard','speedometer2','Dashboard') }}
+        {{ link('manager.menu','egg-fried','Menu') }}
+        {{ link('manager.categories','tags','Categories') }}
+        {{ link('manager.staff','people','Staff') }}
+        {{ link('manager.orders','receipt','Orders') }}
+        {{ link('manager.reports','bar-chart','Sales Reports') }}
+        {{ link('manager.reviews','star','Reviews') }}
+        {{ link('manager.settings','gear','Canteen Settings') }}
+        {{ link('manager.profile','person','Profile') }}
+      {% elif session.get('role') == 'admin' %}
+        {{ link('admin.dashboard','speedometer2','Dashboard') }}
+        {{ link('admin.users','people','Users') }}
+        {{ link('admin.canteens','shop','Canteens') }}
+        {{ link('admin.managers','person-badge','Managers') }}
+        {{ link('admin.riders','bicycle','Riders') }}
+        {{ link('admin.orders','receipt','Orders') }}
+        {{ link('admin.locations','geo-alt','Delivery Locations') }}
+        {{ link('admin.complaints','flag','Complaints') }}
+        {{ link('admin.reports','bar-chart','Reports') }}
+        {{ link('admin.settings','gear','System Settings') }}
+        {{ link('admin.profile','person','Profile') }}
+      {% endif %}
+    </nav>
+    <div class="dash-foot">
+      <a href="{{ url_for('auth.logout') }}" class="dash-link"><i class="bi bi-box-arrow-left"></i><span>Log out</span></a>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="dash-main">
+    <header class="dash-topbar">
+      <button class="btn btn-sm btn-light d-lg-none" onclick="document.getElementById('sidebar').classList.toggle('open')"><i class="bi bi-list"></i></button>
+      <div>
+        <h5 class="mb-0 fw-bold">{% block page_title %}Dashboard{% endblock %}</h5>
+        <small class="text-muted">{% block page_sub %}{% endblock %}</small>
+      </div>
+      <div class="ms-auto d-flex align-items-center gap-2">
+        <span class="avatar-sm">{{ session.get('full_name','?')[:1] }}</span>
+        <div class="d-none d-sm-block"><div class="fw-semibold small">{{ session.get('full_name') }}</div>
+          <div class="text-muted" style="font-size:.75rem">{{ role_title }}</div></div>
+      </div>
+    </header>
+    <div class="dash-content">
+      {% include 'partials/flash.html' %}
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

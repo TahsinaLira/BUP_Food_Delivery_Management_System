@@ -1,0 +1,34 @@
+{% extends 'dashboard_base.html' %}
+{% block page_title %}Sales Reports{% endblock %}
+{% block content %}
+<ul class="nav nav-pills mb-3">
+  <li class="nav-item"><a class="nav-link {{ 'active' if rng=='weekly' else '' }}" href="{{ url_for('manager.reports', range='weekly') }}">Weekly</a></li>
+  <li class="nav-item"><a class="nav-link {{ 'active' if rng=='monthly' else '' }}" href="{{ url_for('manager.reports', range='monthly') }}">Monthly</a></li>
+</ul>
+<div class="row g-3 mb-3">
+  <div class="col-md-4"><div class="stat-card"><div class="stat-label">Total sales</div><div class="stat-val text-success">{{ money(total_sales) }}</div></div></div>
+  <div class="col-md-4"><div class="stat-card"><div class="stat-label">Total orders</div><div class="stat-val">{{ orders_count }}</div></div></div>
+  <div class="col-md-4"><div class="stat-card"><div class="stat-label">Avg order value</div><div class="stat-val text-primary">{{ money(aov) }}</div></div></div>
+</div>
+<div class="card border-0 shadow-sm mb-3"><div class="card-body">
+  <h6 class="fw-bold mb-3">{{ rng|capitalize }} sales trend</h6>
+  <canvas id="repChart" height="90"></canvas>
+</div></div>
+<div class="card border-0 shadow-sm"><div class="card-body">
+  <h6 class="fw-bold mb-2">Most popular foods</h6>
+  <table class="table table-sm mb-0"><thead class="table-light"><tr><th>Item</th><th>Sold</th><th>Revenue</th></tr></thead>
+    <tbody>{% for p in popular %}<tr><td>{{ p.item_name }}</td><td>{{ p.q }}</td><td>{{ money(p.revenue) }}</td></tr>{% endfor %}</tbody></table>
+</div></div>
+{% endblock %}
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+new Chart(document.getElementById('repChart'), {
+  type: 'line',
+  data: { labels: {{ chart_labels|tojson }},
+    datasets: [{ label:'Sales (৳)', data: {{ chart_values|tojson }}, borderColor:'#12806a',
+      backgroundColor:'rgba(18,128,106,.12)', fill:true, tension:.35, pointRadius:4 }] },
+  options: { plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}} }
+});
+</script>
+{% endblock %}

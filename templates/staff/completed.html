@@ -1,0 +1,18 @@
+{% extends 'dashboard_base.html' %}
+{% block page_title %}Completed Orders{% endblock %}
+{% block content %}
+<div class="card border-0 shadow-sm"><div class="table-responsive">
+  <table class="table table-hover align-middle mb-0">
+    <thead class="table-light"><tr><th>Order</th><th>Customer</th><th>Location</th><th>Total</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+    {% for o in orders %}
+      <tr><td class="fw-semibold">{{ o.order_number }}</td><td>{{ o.customer_name }}</td><td>{{ o.location_name }}</td>
+        <td>{{ money(o.total) }}</td><td><span class="badge bg-{{ status_badge(o.status_name) }}">{{ o.status_name }}</span></td>
+        <td><a href="{{ url_for('staff.order_details', oid=o.id) }}" class="btn btn-sm btn-outline-secondary">View</a></td></tr>
+    {% else %}
+      <tr><td colspan="6" class="text-center text-muted py-4">No completed orders yet.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+{% endblock %}

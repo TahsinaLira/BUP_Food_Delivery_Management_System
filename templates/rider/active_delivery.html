@@ -1,0 +1,32 @@
+{% extends 'rider_base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-2">
+  <span class="fw-bold">{{ order.order_number }}</span>
+  <span class="badge bg-{{ status_badge(order.status_name) }}">{{ order.status_name }}</span>
+</div>
+
+<div class="card border-0 shadow-sm mb-3"><div class="card-body">
+  <div class="mb-2"><span class="badge bg-warning text-dark"><i class="bi bi-shop"></i> Pickup</span>
+    <div class="fw-semibold mt-1">{{ order.canteen_name }} · {{ order.canteen_campus }}</div></div>
+  <div><span class="badge bg-success"><i class="bi bi-geo-alt"></i> Drop-off</span>
+    <div class="fw-semibold mt-1">{{ order.location_name }}</div>
+    <div class="small text-muted">{{ order.customer_name }} · {{ order.customer_phone }}</div></div>
+</div></div>
+
+<div class="card border-0 shadow-sm mb-3"><div class="card-body">
+  <h6 class="fw-bold mb-2">Items ({{ money(order.total) }} · {{ order.payment_method }})</h6>
+  {% for it in items %}<div class="small">{{ it.quantity }}× {{ it.item_name }}</div>{% endfor %}
+</div></div>
+
+{% if order.status_name == 'Rider Assigned' %}
+  <form method="post" action="{{ url_for('rider.confirm_pickup', oid=order.id) }}" class="d-grid">
+    <button class="btn btn-brand btn-lg"><i class="bi bi-check2"></i> Arrived & Confirm Pickup</button></form>
+{% elif order.status_name == 'Picked Up' %}
+  <form method="post" action="{{ url_for('rider.start_delivery', oid=order.id) }}" class="d-grid">
+    <button class="btn btn-brand btn-lg"><i class="bi bi-truck"></i> Start Delivery</button></form>
+{% elif order.status_name == 'On the Way' %}
+  <a href="{{ url_for('rider.otp', oid=order.id) }}" class="btn btn-brand btn-lg w-100"><i class="bi bi-geo-alt"></i> Arrived at Delivery Point</a>
+{% else %}
+  <div class="alert alert-secondary">Status: {{ order.status_name }}</div>
+{% endif %}
+{% endblock %}

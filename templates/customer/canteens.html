@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Canteens · BUP Food{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+  <h4 class="fw-bold mb-0">{% if q %}Results for "{{ q }}"{% else %}Canteens{% endif %}</h4>
+  <form action="{{ url_for('customer.canteens') }}" method="get">
+    <div class="input-group">
+      <span class="input-group-text bg-white"><i class="bi bi-search text-brand"></i></span>
+      <input class="form-control" name="q" value="{{ q }}" placeholder="Search canteens or food...">
+      <button class="btn btn-brand">Search</button>
+      {% if q %}<a href="{{ url_for('customer.canteens') }}" class="btn btn-outline-secondary">Clear</a>{% endif %}
+    </div>
+  </form>
+</div>
+
+{% if not canteens %}
+<div class="text-center text-muted py-5">
+  <i class="bi bi-search fs-1 d-block mb-2"></i>
+  No canteens or food match "{{ q }}". <a href="{{ url_for('customer.canteens') }}">See all canteens</a>
+</div>
+{% endif %}
+
+<div class="row g-3">
+  {% for c in canteens %}
+  <div class="col-md-6 col-lg-4">
+    <div class="card h-100 border-0 shadow-sm card-hover">
+      {% if c.image %}
+        <div class="food-cover"><img src="{{ c.image if '://' in c.image else url_for('static', filename='images/' + c.image) }}" alt="{{ c.name }}"></div>
+      {% else %}
+        <div class="food-cover"><i class="bi bi-shop"></i></div>
+      {% endif %}
+      <div class="card-body">
+        <div class="d-flex justify-content-between">
+          <h6 class="fw-bold mb-1">{{ c.name }}</h6>
+          {% if c.is_active and c.is_open %}<span class="badge bg-success">Open</span>
+          {% elif c.status_label == 'Coming Soon' %}<span class="badge bg-warning text-dark">Coming Soon</span>
+          {% else %}<span class="badge bg-secondary">Closed</span>{% endif %}
+        </div>
+        <p class="text-muted small mb-2">{{ c.description }}</p>
+        <div class="small text-muted"><i class="bi bi-geo-alt"></i> {{ c.campus }}
+          {% if c.contact %}· <i class="bi bi-telephone"></i> {{ c.contact }}{% endif %}</div>
+      </div>
+      <div class="card-footer bg-white border-0">
+        {% if c.is_active %}
+          <a href="{{ url_for('customer.canteen_menu', cid=c.id) }}" class="btn btn-brand btn-sm w-100">View Menu</a>
+        {% else %}
+          <button class="btn btn-outline-secondary btn-sm w-100" disabled><i class="bi bi-hourglass-split"></i> Coming Soon</button>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

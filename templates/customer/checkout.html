@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}Checkout · BUP Food{% endblock %}
+{% block content %}
+<h4 class="fw-bold mb-3">Checkout</h4>
+<form method="post" action="{{ url_for('customer.checkout') }}">
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="card border-0 shadow-sm mb-3">
+      <div class="card-body">
+        <h6 class="fw-bold mb-3"><i class="bi bi-geo-alt"></i> Delivery Location</h6>
+        <p class="text-muted small">Choose an approved BUP delivery location (no room numbers).</p>
+        <select name="location_id" class="form-select" required>
+          <option value="">Select a location…</option>
+          {% for l in locations %}<option value="{{ l.id }}">{{ l.name }} ({{ l.campus }})</option>{% endfor %}
+        </select>
+        <label class="form-label mt-3">Delivery instructions (optional)</label>
+        <textarea name="instructions" class="form-control" rows="2" placeholder="e.g. call on arrival, near the notice board"></textarea>
+      </div>
+    </div>
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h6 class="fw-bold mb-3"><i class="bi bi-wallet2"></i> Payment Method</h6>
+        <p class="text-muted small">Electronic payments are simulated for this prototype.</p>
+        {% for pm in payment_methods %}
+        <div class="form-check border rounded p-2 ps-5 mb-2">
+          <input class="form-check-input" type="radio" name="payment_method" value="{{ pm }}" id="pm{{ loop.index }}" {{ 'checked' if loop.first else '' }}>
+          <label class="form-check-label" for="pm{{ loop.index }}">{{ pm }}</label>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h6 class="fw-bold mb-3">{{ canteen.name }} · {{ items|length }} items</h6>
+        {% for it in items %}
+        <div class="d-flex justify-content-between small mb-1"><span>{{ it.qty }}× {{ it.food.name }}</span><span>{{ money(it.line_total) }}</span></div>
+        {% endfor %}
+        <hr>
+        <div class="d-flex justify-content-between mb-1"><span class="text-muted">Subtotal</span><span>{{ money(subtotal) }}</span></div>
+        <div class="d-flex justify-content-between mb-1"><span class="text-muted">Delivery fee</span><span>{{ money(fee) }}</span></div>
+        <div class="d-flex justify-content-between fw-bold fs-5 mt-2"><span>Total</span><span>{{ money(total) }}</span></div>
+        <button class="btn btn-brand w-100 mt-3">Place Order</button>
+      </div>
+    </div>
+  </div>
+</div>
+</form>
+{% endblock %}

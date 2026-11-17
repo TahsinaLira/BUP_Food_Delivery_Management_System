@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% block title %}{{ canteen.name }} · BUP Food{% endblock %}
+{% block content %}
+<div class="card border-0 shadow-sm mb-3">
+  {% if canteen.image %}
+    <div class="food-cover lg"><img src="{{ canteen.image if '://' in canteen.image else url_for('static', filename='images/' + canteen.image) }}" alt="{{ canteen.name }}"></div>
+  {% else %}
+    <div class="food-cover lg"><i class="bi bi-shop"></i></div>
+  {% endif %}
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-start">
+      <div>
+        <h4 class="fw-bold mb-1">{{ canteen.name }}</h4>
+        <p class="text-muted mb-1">{{ canteen.description }}</p>
+        <div class="small text-muted"><i class="bi bi-geo-alt"></i> {{ canteen.campus }} ·
+          <i class="bi bi-clock"></i> {{ canteen.opening_time }}–{{ canteen.closing_time }}
+          {% if avg_rating %}· <i class="bi bi-star-fill text-warning"></i> {{ avg_rating }}{% endif %}</div>
+      </div>
+      {% if canteen.is_active and canteen.is_open %}<span class="badge bg-success">Open</span>
+      {% else %}<span class="badge bg-secondary">{{ canteen.status_label }}</span>{% endif %}
+    </div>
+  </div>
+</div>
+
+{% if not (canteen.is_active and canteen.is_open) %}
+<div class="alert alert-warning"><i class="bi bi-exclamation-triangle"></i> This canteen is not accepting orders right now.</div>
+{% endif %}
+
+{% if popular %}
+<h5 class="fw-bold mb-3"><i class="bi bi-fire text-danger"></i> Popular in {{ canteen.name }}</h5>
+<div class="row g-3 mb-4">
+  {% for f in popular %}
+  <div class="col-6 col-md-4 col-lg-2">
+    <div class="card h-100 border-0 shadow-sm card-hover">
+      <div class="food-cover sm">
+        {% if f.image %}<img src="{{ f.image if '://' in f.image else url_for('static', filename='images/' + f.image) }}" alt="{{ f.name }}">{% else %}<i class="bi bi-egg-fried"></i>{% endif %}
+      </div>
+      <div class="card-body p-2">
+        <div class="small fw-semibold text-truncate">{{ f.name }}</div>
+        <div class="text-muted" style="font-size:.72rem"><i class="bi bi-bag-check"></i> {{ f.order_count }} ordered</div>
+        <div class="d-flex justify-content-between align-items-center mt-1">
+          <span class="fw-bold">{{ money(f.price) }}</span>
+          <a href="{{ url_for('customer.food_details', fid=f.id) }}" class="btn btn-sm btn-light"><i class="bi bi-plus-lg"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- ===== Vue.js powered menu (live search + grouped by category) ===== -->
+<div id="menuApp">
+  <div class="input-group mb-3" style="max-width:420px">
+    <span class="input-group-text"><i class="bi bi-search"></i></span>
+    <input v-model="search" class="form-control" placeholder="Search this menu...">
+  </div>
+  <p class="text-muted small">[[ filtered.length ]] item[[ filtered.length === 1 ? '' : 's' ]] shown</p>
+
+  <template v-for="cat in categories" :key="cat.id">
+    <div v-if="itemsFor(cat.id).length">
+      <h5 class="fw-bold mt-4 mb-2 text-brand"><i class="bi bi-caret-right-fill"></i> [[ cat.name ]]</h5>
+      <div class="row g-3">
+        <div class="col-md-6" v-for="f in itemsFor(cat.id)" :key="f.id">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body d-flex gap-3">
+              <div class="food-thumb">
+                <img v-if="f.image" :src="img(f)" :alt="f.name">
+                <i v-else class="bi bi-egg-fried"></i>
+              </div>
+              <div class="flex-grow-1">
+                <div class="d-flex justify-content-between">
+                  <h6 class="fw-bold mb-1">[[ f.name ]]</h6>
+                  <span class="badge bg-light text-dark"><i class="bi bi-star-fill text-warning"></i> [[ f.rating ]]</span>
+                </div>
+                <p class="text-muted small mb-2">[[ f.description ]]</p>
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="fw-bold">৳[[ f.price ]]</span>
+                  <form v-if="f.is_available && canOrder" method="post" :action="addUrl">
+                    <input type="hidden" name="food_id" :value="f.id">
+                    <input type="hidden" name="next" :value="nextUrl">
+                    <button class="btn btn-sm btn-brand"><i class="bi bi-plus-lg"></i> Add</button>
+                  </form>
+                  <span v-else class="badge bg-secondary">[[ f.is_available ? 'Closed' : 'Unavailable' ]]</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
+
+    <div v-if="loading" class="text-center text-muted py-5"><i class="bi bi-arrow-repeat fs-1 d-block mb-2"></i>Loading menu...</div>
+  <div v-if="!loading && filtered.length === 0" class="text-center text-muted py-5">
+    <i class="bi bi-inbox fs-1 d-block mb-2"></i>No items found.
+  </div>
+</div>
+
+<noscript><div class="alert alert-info">Please enable JavaScript to view this menu.</div></noscript>
+
+<!-- Vue.js framework (bundled locally in static/js so it works offline too) -->
+<script src="{{ url_for('static', filename='js/vue.global.prod.js') }}"></script>
+<script>
+  Vue.createApp({
+    // Vue uses [[ ]] here so its braces do not clash with Jinja templating.
+    compilerOptions: { delimiters: ['[[', ']]'] },
+    data() {
+      return {
+        search: "",
+        foods: [],
+        categories: [],
+        loading: true,
+        canOrder: {{ 'true' if (canteen.is_active and canteen.is_open) else 'false' }},
+        apiUrl: "{{ url_for('customer.api_canteen_foods', cid=canteen.id) }}",
+        addUrl: "{{ url_for('customer.cart_add') }}",
+        nextUrl: "{{ url_for('customer.canteen_menu', cid=canteen.id) }}"
+      };
+    },
+    async mounted() {
+      // Fetch API + async/await: load the menu asynchronously from the Flask JSON API.
+      try {
+        const response = await fetch(this.apiUrl);
+        const data = await response.json();
+        this.foods = data.foods;
+        this.categories = data.categories;
+      } catch (e) {
+        console.error("Could not load menu:", e);
+      } finally {
+        this.loading = false;
+      }
+    },
+    computed: {
+      filtered() {
+        const q = this.search.toLowerCase();
+        return this.foods.filter(f => f.name.toLowerCase().includes(q));
+      }
+    },
+    methods: {
+      itemsFor(catId) { return this.filtered.filter(f => f.category_id === catId); },
+      img(f) { return f.image.includes('://') ? f.image : '/static/images/' + f.image; }
+    }
+  }).mount("#menuApp");
+</script>
+{% endblock %}

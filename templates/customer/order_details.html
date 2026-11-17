@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}{{ order.order_number }} · BUP Food{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h4 class="fw-bold mb-0">Order {{ order.order_number }}</h4>
+      <span class="badge bg-{{ status_badge(order.status_name) }} fs-6">{{ order.status_name }}</span>
+    </div>
+    <div class="row g-3">
+      <div class="col-md-7">
+        <div class="card border-0 shadow-sm mb-3"><div class="card-body">
+          <h6 class="fw-bold mb-2">Items</h6>
+          {% for it in items %}<div class="d-flex justify-content-between mb-1"><span>{{ it.quantity }}× {{ it.item_name }}</span><span>{{ money(it.line_total) }}</span></div>{% endfor %}
+          <hr>
+          <div class="d-flex justify-content-between"><span class="text-muted">Subtotal</span><span>{{ money(order.subtotal) }}</span></div>
+          <div class="d-flex justify-content-between"><span class="text-muted">Delivery fee</span><span>{{ money(order.delivery_fee) }}</span></div>
+          <div class="d-flex justify-content-between fw-bold fs-5"><span>Total</span><span>{{ money(order.total) }}</span></div>
+        </div></div>
+        <div class="card border-0 shadow-sm"><div class="card-body">
+          <h6 class="fw-bold mb-2">Status history</h6>
+          <ul class="timeline">
+            {% for h in history %}<li><span class="badge bg-{{ status_badge(h.status_name) }}">{{ h.status_name }}</span>
+              <span class="text-muted small ms-2">{{ h.created_at }}</span>
+              {% if h.note %}<div class="small text-muted">{{ h.note }}</div>{% endif %}</li>{% endfor %}
+          </ul>
+        </div></div>
+      </div>
+      <div class="col-md-5">
+        <div class="card border-0 shadow-sm mb-3"><div class="card-body">
+          <h6 class="fw-bold mb-2">Delivery</h6>
+          <div class="mb-1"><i class="bi bi-shop"></i> {{ order.canteen_name }}</div>
+          <div class="mb-1"><i class="bi bi-geo-alt"></i> {{ order.location_name }}</div>
+          {% if order.rider_name %}<div class="mb-1"><i class="bi bi-scooter"></i> {{ order.rider_name }}</div>{% endif %}
+        </div></div>
+        <div class="card border-0 shadow-sm"><div class="card-body">
+          <h6 class="fw-bold mb-2">Payment</h6>
+          <div class="d-flex justify-content-between"><span>{{ order.payment_method }}</span>
+            {% if payment %}<span class="badge bg-{{ status_badge(payment.status) }}">{{ payment.status }}</span>{% endif %}</div>
+        </div></div>
+        <div class="d-grid gap-2 mt-3">
+          <a href="{{ url_for('customer.order_tracking', oid=order.id) }}" class="btn btn-outline-brand btn-sm">Track order</a>
+          <form method="post" action="{{ url_for('customer.reorder', oid=order.id) }}" class="d-grid"><button class="btn btn-outline-secondary btn-sm">Reorder</button></form>
+          {% if order.status_name == 'Delivered' and not review %}
+          <a href="{{ url_for('customer.review', oid=order.id) }}" class="btn btn-warning btn-sm">Leave a review</a>{% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

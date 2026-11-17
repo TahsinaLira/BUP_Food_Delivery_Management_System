@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}{{ food.name }} · BUP Food{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <a href="{{ url_for('customer.canteen_menu', cid=food.canteen_id) }}" class="btn btn-sm btn-light mb-3"><i class="bi bi-chevron-left"></i> Back to {{ food.canteen_name }}</a>
+    <div class="card border-0 shadow-sm">
+      <div class="food-cover lg"><i class="bi bi-egg-fried"></i></div>
+      <div class="card-body p-4">
+        <div class="d-flex justify-content-between">
+          <h3 class="fw-bold">{{ food.name }}</h3>
+          <span class="badge bg-light text-dark align-self-start"><i class="bi bi-star-fill text-warning"></i> {{ food.rating }}</span>
+        </div>
+        <div class="text-muted mb-2">{{ food.canteen_name }} · {{ food.category_name }}</div>
+        <p>{{ food.description }}</p>
+        <h4 class="fw-bold text-brand">{{ money(food.price) }}</h4>
+        {% if food.is_available and food.is_active and food.is_open %}
+        <form method="post" action="{{ url_for('customer.cart_add') }}" class="d-flex gap-2 align-items-center mt-3">
+          <input type="hidden" name="food_id" value="{{ food.id }}">
+          <input type="number" name="qty" value="1" min="1" class="form-control" style="width:90px">
+          <button class="btn btn-brand"><i class="bi bi-cart-plus"></i> Add to Cart</button>
+        </form>
+        {% else %}
+        <div class="alert alert-secondary mt-3 mb-0">This item is currently unavailable.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

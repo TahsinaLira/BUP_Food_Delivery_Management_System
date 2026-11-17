@@ -1,0 +1,16 @@
+{% extends 'dashboard_base.html' %}
+{% block page_title %}Manager Profile{% endblock %}
+{% block content %}
+<div class="card border-0 shadow-sm" style="max-width:520px"><div class="card-body">
+  <div class="d-flex align-items-center gap-3 mb-3">
+    <span class="avatar-lg">{{ user.full_name[:1] }}</span>
+    <div><h5 class="fw-bold mb-0">{{ user.full_name }}</h5><div class="text-muted">Canteen Manager · {{ canteen.name }}</div></div>
+  </div>
+  <ul class="list-group list-group-flush">
+    <li class="list-group-item d-flex justify-content-between"><span class="text-muted">Email</span><span>{{ user.email }}</span></li>
+    <li class="list-group-item d-flex justify-content-between"><span class="text-muted">Phone</span><span>{{ user.phone }}</span></li>
+    <li class="list-group-item d-flex justify-content-between"><span class="text-muted">Canteen</span><span>{{ canteen.name }} ({{ canteen.campus }})</span></li>
+  </ul>
+  <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-danger w-100 mt-3">Log out</a>
+</div></div>
+{% endblock %}

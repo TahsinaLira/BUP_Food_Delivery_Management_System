@@ -1,0 +1,17 @@
+{% extends 'dashboard_base.html' %}
+{% block page_title %}Live Orders{% endblock %}
+{% block page_sub %}{{ canteen.name }} · order counter{% endblock %}
+{% block content %}
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-label">New orders</div><div class="stat-val text-warning">{{ counts.new }}</div></div></div>
+  <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-label">Preparing</div><div class="stat-val text-primary">{{ counts.preparing }}</div></div></div>
+  <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-label">Ready</div><div class="stat-val text-info">{{ counts.ready }}</div></div></div>
+  <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-label">Completed</div><div class="stat-val text-success">{{ counts.completed }}</div></div></div>
+</div>
+
+<h6 class="fw-bold mb-3"><i class="bi bi-bell"></i> New Orders {% if new_orders %}<span class="badge bg-warning text-dark">{{ new_orders|length }} waiting</span>{% endif %}</h6>
+<div class="row g-3">
+  {% for order in new_orders %}{% set o = order %}{% include 'partials/staff_order_card.html' %}{% endfor %}
+  {% if not new_orders %}<div class="col-12"><div class="text-center text-muted py-5"><i class="bi bi-inbox fs-1 d-block mb-2"></i>No new orders right now.</div></div>{% endif %}
+</div>
+{% endblock %}

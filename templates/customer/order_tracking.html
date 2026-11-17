@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block title %}Track {{ order.order_number }} · BUP Food{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div><h4 class="fw-bold mb-0">Order {{ order.order_number }}</h4>
+        <small class="text-muted">{{ order.canteen_name }} · {{ money(order.total) }}</small></div>
+      <span class="badge bg-{{ status_badge(order.status_name) }} fs-6">{{ order.status_name }}</span>
+    </div>
+
+    {% if order.status_name in ['Rider Assigned','Picked Up','On the Way'] %}
+    <div class="card border-0 shadow-sm mb-3 otp-card text-white text-center">
+      <div class="card-body">
+        <div class="small text-uppercase opacity-75">Delivery Code</div>
+        <div class="otp-big">{{ order.otp }}</div>
+        <div class="small">Give this code to your rider <b>after</b> you receive your order.</div>
+      </div>
+    </div>
+    {% endif %}
+
+    {% if order.status_name == 'Delivered' %}
+    <div class="alert alert-success d-flex justify-content-between align-items-center">
+      <span><i class="bi bi-check-circle"></i> Delivered — enjoy your meal!</span>
+      <a href="{{ url_for('customer.review', oid=order.id) }}" class="btn btn-sm btn-success">Rate order</a>
+    </div>
+    {% endif %}
+
+    <div class="card border-0 shadow-sm mb-3">
+      <div class="card-body">
+        <ul class="tracker">
+          {% for step in STATUS_FLOW %}
+            {% set done = STATUS_FLOW.index(step) < STATUS_FLOW.index(order.status_name) if order.status_name in STATUS_FLOW else false %}
+            {% set active = step == order.status_name %}
+            <li class="{{ 'done' if done else '' }} {{ 'active' if active else '' }}">
+              <span class="dot">{% if done %}<i class="bi bi-check"></i>{% endif %}</span>
+              <span class="lbl">{{ step }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+    {% if order.rider_name %}
+    <div class="card border-0 shadow-sm mb-3"><div class="card-body d-flex align-items-center gap-3">
+      <span class="avatar-sm">{{ order.rider_name[:1] }}</span>
+      <div class="flex-grow-1"><div class="fw-semibold">{{ order.rider_name }}</div><div class="text-muted small">Your delivery rider</div></div>
+      <a href="tel:{{ order.rider_phone }}" class="btn btn-sm btn-outline-brand"><i class="bi bi-telephone"></i></a>
+    </div></div>
+    {% endif %}
+
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h6 class="fw-bold mb-2">Items</h6>
+        {% for it in items %}<div class="d-flex justify-content-between small mb-1"><span>{{ it.quantity }}× {{ it.item_name }}</span><span>{{ money(it.line_total) }}</span></div>{% endfor %}
+      </div>
+    </div>
+
+    <div class="mt-3 d-flex gap-2">
+      <a href="{{ url_for('customer.order_details', oid=order.id) }}" class="btn btn-outline-secondary btn-sm">Full details</a>
+      {% if order.status_name in ['Pending','Accepted'] %}
+      <form method="post" action="{{ url_for('customer.cancel_order', oid=order.id) }}" onsubmit="return confirm('Cancel this order?')">
+        <button class="btn btn-outline-danger btn-sm">Cancel order</button></form>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

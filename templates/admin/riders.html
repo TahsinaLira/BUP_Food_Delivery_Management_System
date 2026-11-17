@@ -1,0 +1,19 @@
+{% extends 'dashboard_base.html' %}
+{% block page_title %}Rider Management{% endblock %}
+{% block content %}
+<div class="card border-0 shadow-sm"><div class="table-responsive">
+  <table class="table table-hover align-middle mb-0">
+    <thead class="table-light"><tr><th>Rider</th><th>Phone</th><th>Current status</th><th>Delivered</th><th>Account</th><th class="text-end">Action</th></tr></thead>
+    <tbody>
+    {% for r in riders %}
+    <tr><td class="fw-semibold">{{ r.full_name }}</td><td class="text-muted">{{ r.phone }}</td>
+      <td><span class="badge bg-{{ status_badge(r.rider_status or 'Offline') }}">{{ r.rider_status or 'Offline' }}</span></td>
+      <td>{{ r.delivered }}</td>
+      <td><span class="badge bg-{{ 'success' if r.is_active else 'danger' }}">{{ 'Active' if r.is_active else 'Suspended' }}</span></td>
+      <td class="text-end"><form method="post" action="{{ url_for('admin.toggle_user', uid=r.id) }}">
+        <button class="btn btn-sm btn-outline-{{ 'danger' if r.is_active else 'success' }}">{{ 'Suspend' if r.is_active else 'Activate' }}</button></form></td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends 'dashboard_base.html' %}
+{% block page_title %}Canteen Managers{% endblock %}
+{% block content %}
+<div class="card border-0 shadow-sm"><div class="table-responsive">
+  <table class="table table-hover align-middle mb-0">
+    <thead class="table-light"><tr><th>Manager</th><th>Email</th><th>Canteen</th><th>Status</th></tr></thead>
+    <tbody>
+    {% for m in managers %}
+    <tr><td class="fw-semibold">{{ m.full_name }}</td><td class="text-muted">{{ m.email }}</td>
+      <td>{{ m.canteen_name or '— (unassigned)' }}</td>
+      <td><span class="badge bg-{{ 'success' if m.is_active else 'danger' }}">{{ 'Active' if m.is_active else 'Suspended' }}</span></td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends 'dashboard_base.html' %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_sub %}{{ canteen.name }} · {{ canteen.campus }}{% endblock %}
+{% block content %}
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-2"><div class="stat-card"><div class="stat-label">Today's orders</div><div class="stat-val">{{ kpis.today_orders }}</div></div></div>
+  <div class="col-6 col-lg-2"><div class="stat-card"><div class="stat-label">Revenue</div><div class="stat-val text-success">{{ money(kpis.revenue) }}</div></div></div>
+  <div class="col-6 col-lg-2"><div class="stat-card"><div class="stat-label">Completed</div><div class="stat-val text-primary">{{ kpis.completed }}</div></div></div>
+  <div class="col-6 col-lg-2"><div class="stat-card"><div class="stat-label">Cancelled</div><div class="stat-val text-danger">{{ kpis.cancelled }}</div></div></div>
+  <div class="col-6 col-lg-2"><div class="stat-card"><div class="stat-label">Avg rating</div><div class="stat-val text-warning">{{ kpis.avg_rating }}★</div></div></div>
+  <div class="col-6 col-lg-2"><div class="stat-card"><div class="stat-label">Best seller</div><div class="stat-val" style="font-size:1rem">{{ kpis.best_seller }}</div></div></div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-8"><div class="card border-0 shadow-sm h-100"><div class="card-body">
+    <h6 class="fw-bold mb-3">Sales — last 7 days</h6>
+    <canvas id="salesChart" height="110"></canvas>
+  </div></div></div>
+  <div class="col-lg-4"><div class="card border-0 shadow-sm h-100"><div class="card-body">
+    <h6 class="fw-bold mb-3">Popular foods</h6>
+    {% for p in popular %}
+    <div class="mb-2"><div class="d-flex justify-content-between small"><span>{{ p.item_name }}</span><span class="text-muted">{{ p.q }}</span></div>
+      <div class="progress" style="height:6px"><div class="progress-bar bg-brand" style="width:{{ (p.q / (popular[0].q or 1) * 100)|round }}%"></div></div></div>
+    {% else %}<p class="text-muted small">No sales yet.</p>{% endfor %}
+  </div></div></div>
+</div>
+
+<div class="row g-3 mt-1">
+  <div class="col-lg-8"><div class="card border-0 shadow-sm"><div class="card-body">
+    <div class="d-flex justify-content-between"><h6 class="fw-bold">Recent orders</h6><a href="{{ url_for('manager.orders') }}" class="small">View all</a></div>
+    <table class="table table-sm align-middle mb-0">
+      <thead class="table-light"><tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th></tr></thead>
+      <tbody>{% for o in recent %}<tr><td class="fw-semibold">{{ o.order_number }}</td><td>{{ o.customer_name }}</td>
+        <td>{{ money(o.total) }}</td><td><span class="badge bg-{{ status_badge(o.status_name) }}">{{ o.status_name }}</span></td></tr>{% endfor %}</tbody>
+    </table>
+  </div></div></div>
+  <div class="col-lg-4"><div class="card border-0 shadow-sm"><div class="card-body">
+    <h6 class="fw-bold mb-2">Needs attention</h6>
+    {% for f in unavailable %}<div class="d-flex justify-content-between small mb-1"><span>{{ f.name }}</span><span class="badge bg-danger">Unavailable</span></div>
+    {% else %}<p class="text-muted small mb-0">All items available.</p>{% endfor %}
+  </div></div></div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+new Chart(document.getElementById('salesChart'), {
+  type: 'bar',
+  data: { labels: {{ chart_labels|tojson }},
+    datasets: [{ label: 'Sales (৳)', data: {{ chart_values|tojson }}, backgroundColor: '#12806a', borderRadius: 5 }] },
+  options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+});
+</script>
+{% endblock %}
